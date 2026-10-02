@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🕌 Islamic Prayer Times · Full Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+
+        body {
+            background: #02030a;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #eef3fc;
+            padding: 8px;
+            position: relative;
+        }
+
+        /* ============================================================
+           ANIMATED ISLAMIC GEOMETRIC BACKGROUND
+           ============================================================ */
+        .bg-layer {
+            position: fixed; inset: 0;
+            z-index: 0; overflow: hidden;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0a1020 0%, #02030a 100%);
+        }
+
+        .bg-star {
+            position: absolute; top: 50%; left: 50%;
+            width: 180vmax; height: 180vmax;
+            transform: translate(-50%, -50%);
+            background:
+                conic-gradient(from 0deg,
+                    rgba(255, 200, 90, 0.00) 0deg,
+                    rgba(255, 200, 90, 0.28) 10deg,
+                    rgba(255, 120, 60, 0.00) 20deg,
+                    rgba(200, 100, 255, 0.28) 40deg,
+                    rgba(255, 200, 90, 0.00) 60deg,
+                    rgba(60, 180, 255, 0.28) 80deg,
+                    rgba(255, 200, 90, 0.00) 100deg,
+                    rgba(255, 80, 150, 0.28) 120deg,
+                    rgba(255, 200, 90, 0.00) 140deg,
+                    rgba(80, 255, 180, 0.28) 160deg,
+                    rgba(255, 200, 90, 0.00) 180deg,
+                    rgba(255, 160, 60, 0.28) 200deg,
+                    rgba(255, 200, 90, 0.00) 220deg,
+                    rgba(180, 120, 255, 0.28) 240deg,
+                    rgba(255, 200, 90, 0.00) 260deg,
+                    rgba(80, 200, 255, 0.28) 280deg,
+                    rgba(255, 200, 90, 0.00) 300deg,
+                    rgba(255, 140, 100, 0.28) 320deg,
+                    rgba(255, 200, 90, 0.00) 340deg,
+                    rgba(120, 255, 200, 0.28) 360deg);
+            border-radius: 50%;
+            animation: rotateSlow 60s linear infinite;
+            filter: blur(8px);
+            opacity: 0.9;
+        }
+
+        .bg-geo2 {
+            position: absolute; top: 50%; left: 50%;
+            width: 120vmax; height: 120vmax;
+            transform: translate(-50%, -50%);
+            background:
+                repeating-conic-gradient(from 0deg,
+                    rgba(255, 215, 120, 0.20) 0deg 6deg,
+                    transparent 6deg 22.5deg,
+                    rgba(140, 200, 255, 0.18) 22.5deg 30deg,
+                    transparent 30deg 45deg);
+            border-radius: 50%;
+            animation: rotateReverse 45s linear infinite;
+            filter: blur(4px);
+            opacity: 0.85;
+        }
+
+        .bg-geo3 {
+            position: absolute; top: 50%; left: 50%;
+            width: 90vmax; height: 90vmax;
+            transform: translate(-50%, -50%);
+            background:
+                conic-gradient(from 45deg,
+                    rgba(255, 160, 80, 0.26) 0deg 20deg,
+                    transparent 20deg 40deg,
+                    rgba(160, 120, 255, 0.26) 40deg 60deg,
+                    transparent 60deg 80deg,
+                    rgba(80, 220, 200, 0.26) 80deg 100deg,
+                    transparent 100deg 120deg,
+                    rgba(255, 120, 140, 0.26) 120deg 140deg,
+                    transparent 140deg 160deg,
+                    rgba(200, 220, 100, 0.26) 160deg 180deg,
+                    transparent 180deg 200deg,
+                    rgba(120, 180, 255, 0.26) 200deg 220deg,
+                    transparent 220deg 240deg,
+                    rgba(255, 180, 100, 0.26) 240deg 260deg,
+                    transparent 260deg 280deg,
+                    rgba(180, 140, 255, 0.26) 280deg 300deg,
+                    transparent 300deg 320deg,
+                    rgba(100, 220, 200, 0.26) 320deg 340deg,
+                    transparent 340deg 360deg);
+            border-radius: 50%;
+            animation: rotateMedium 35s linear infinite;
+            filter: blur(6px);
+            opacity: 0.8;
+        }
+
+        .bg-dots {
+            position: absolute; inset: -10%;
+            background-image:
+                radial-gradient(3px 3px at 20% 30%, rgba(255,230,150,0.9), transparent 60%),
+                radial-gradient(3px 3px at 70% 60%, rgba(200,220,255,0.85), transparent 60%),
+                radial-gradient(2.5px 2.5px at 40% 80%, rgba(255,180,120,0.9), transparent 60%),
+                radial-gradient(3px 3px at 85% 20%, rgba(180,255,220,0.85), transparent 60%),
+                radial-gradient(2.5px 2.5px at 10% 70%, rgba(255,210,150,0.9), transparent 60%),
+                radial-gradient(3px 3px at 55% 15%, rgba(220,180,255,0.85), transparent 60%),
+                radial-gradient(2.5px 2.5px at 90% 85%, rgba(255,240,180,0.9), transparent 60%),
+                radial-gradient(3px 3px at 30% 50%, rgba(160,220,255,0.8), transparent 60%);
+            background-size: 100% 100%;
+            animation: driftStars 30s linear infinite;
+            opacity: 0.95;
+        }
+
+        .bg-aura {
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(255,140,50,0.28), transparent 45%),
+                radial-gradient(circle at 75% 65%, rgba(120,80,255,0.25), transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(255,80,140,0.20), transparent 55%),
+                radial-gradient(circle at 15% 85%, rgba(60,220,200,0.22), transparent 50%),
+                radial-gradient(circle at 60% 10%, rgba(255,200,80,0.20), transparent 45%);
+            animation: auraShift 15s ease-in-out infinite alternate;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes rotateSlow { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+        @keyframes rotateReverse { from { transform: translate(-50%,-50%) rotate(360deg); } to { transform: translate(-50%,-50%) rotate(0deg); } }
+        @keyframes rotateMedium { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+        @keyframes driftStars {
+            0% { transform: translate(0,0) rotate(0deg); }
+            50% { transform: translate(-4%, -3%) rotate(3deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+        @keyframes auraShift {
+            0% { opacity: 0.9; filter: hue-rotate(0deg); }
+            50% { opacity: 1; filter: hue-rotate(45deg); }
+            100% { opacity: 0.85; filter: hue-rotate(-30deg); }
+        }
+
+        /* ============================================================
+           MAIN APP CARD — with soft inward/outward pulsing border
+           ============================================================ */
+        .app {
+            width: 100%; max-width: 1300px;
+            height: 95vh; max-height: 900px;
+            background: rgba(6, 10, 22, 0.72);
+            backdrop-filter: blur(18px) saturate(150%);
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
+            border-radius: 48px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 24px 14px;
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow:
+                0 30px 60px -20px rgba(0, 0, 0, 0.9),
+                inset 0 1px 2px rgba(255, 255, 255, 0.08);
+            animation: softGlowPulse 6s ease-in-out infinite;
+        }
+
+        /* Soft, breathing glow ring — pulses inward & outward */
+        .app::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 48px;
+            padding: 2px;
+            background: linear-gradient(135deg,
+                rgba(255, 220, 180, 0.9),
+                rgba(255, 190, 150, 0.5),
+                rgba(220, 200, 255, 0.8),
+                rgba(180, 220, 255, 0.5),
+                rgba(200, 240, 220, 0.8),
+                rgba(255, 220, 180, 0.9));
+            background-size: 300% 300%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderBreathe 6s ease-in-out infinite, borderShift 12s linear infinite;
+            pointer-events: none;
+            filter: drop-shadow(0 0 6px rgba(255, 220, 180, 0.7))
+                    drop-shadow(0 0 14px rgba(220, 200, 255, 0.5));
+        }
+
+        /* Inner soft glow ring — moves opposite direction */
+        .app::after {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 220, 200, 0.28);
+            box-shadow:
+                0 0 18px rgba(255, 220, 200, 0.35) inset,
+                0 0 14px rgba(220, 200, 255, 0.25) inset;
+            pointer-events: none;
+            animation: innerBreathe 6s ease-in-out infinite;
+        }
+
+        /* Soft pulsing shadow (outward/inward) */
+        @keyframes softGlowPulse {
+            0%, 100% {
+                box-shadow:
+                    0 30px 60px -20px rgba(0, 0, 0, 0.9),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+                    0 0 30px rgba(255, 215, 160, 0.20),
+                    0 0 60px rgba(200, 180, 255, 0.12);
+            }
+            50% {
+                box-shadow:
+                    0 30px 60px -20px rgba(0, 0, 0, 0.9),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+                    0 0 55px rgba(255, 215, 160, 0.38),
+                    0 0 100px rgba(200, 180, 255, 0.25);
+            }
+        }
+
+        /* Border gradient travels around + pulses in/out */
+        @keyframes borderShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes borderBreathe {
+            0%, 100% {
+                padding: 2px;
+                filter: drop-shadow(0 0 4px rgba(255, 220, 180, 0.5))
+                        drop-shadow(0 0 10px rgba(220, 200, 255, 0.35));
+                opacity: 0.85;
+            }
+            50% {
+                padding: 3px;
+                filter: drop-shadow(0 0 10px rgba(255, 220, 180, 0.95))
+                        drop-shadow(0 0 22px rgba(220, 200, 255, 0.7))
+                        drop-shadow(0 0 36px rgba(180, 220, 255, 0.4));
+                opacity: 1;
+            }
+        }
+
+        @keyframes innerBreathe {
+            0%, 100% {
+                inset: 8px;
+                opacity: 0.6;
+                border-color: rgba(255, 220, 200, 0.22);
+            }
+            50% {
+                inset: 5px;
+                opacity: 1;
+                border-color: rgba(255, 230, 210, 0.5);
+                box-shadow:
+                    0 0 24px rgba(255, 220, 200, 0.5) inset,
+                    0 0 20px rgba(220, 200, 255, 0.4) inset;
+            }
+        }
+
+        .app.glow-active {
+            box-shadow: 0 0 60px 12px rgba(255,190,80,0.55), 0 30px 60px -20px black, 0 0 120px rgba(255,140,40,0.4);
+            animation: pulseGlow 1.8s infinite alternate ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 40px 6px rgba(255,190,80,0.35), 0 30px 60px -20px black; }
+            100% { box-shadow: 0 0 90px 22px rgba(255,210,120,0.75), 0 30px 60px -20px black; }
+        }
+
+        .prayer-light {
+            position: fixed; top: 50%; left: 50%;
+            width: 0; height: 0; border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(255,245,190,0.98) 0%, rgba(255,210,100,0.55) 35%,
+                rgba(255,160,60,0.25) 60%, transparent 80%);
+            transform: translate(-50%,-50%);
+            pointer-events: none; z-index: 1000; opacity: 0;
+        }
+        .prayer-light.active { animation: brightFlash 1.4s ease-out forwards; }
+        @keyframes brightFlash {
+            0% { width: 0; height: 0; opacity: 1; }
+            40% { width: 150vmax; height: 150vmax; opacity: 0.95; }
+            100% { width: 260vmax; height: 260vmax; opacity: 0; }
+        }
+
+        /* ============================================================
+           DU'A ROTATOR
+           ============================================================ */
+        .dua-rotator {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 36px; padding: 2px 16px;
+            margin-bottom: 2px; position: relative; z-index: 2;
+            flex-shrink: 0;
+        }
+        .dua-text {
+            font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+            font-weight: 500; color: #d4c09a;
+            text-align: center; letter-spacing: 0.8px; line-height: 1.4;
+            text-shadow: 0 0 18px rgba(255,200,90,0.45), 0 0 40px rgba(255,160,60,0.25);
+            animation: duaFade 6s ease-in-out infinite;
+            max-width: 95%;
+            transition: opacity 0.5s ease;
+        }
+        @keyframes duaFade {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; }
+        }
+
+        /* ============================================================
+           MAIN CENTER PANEL
+           ============================================================ */
+        .main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2px 0;
+            position: relative; z-index: 2;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .current-time {
+            font-size: clamp(2.2rem, 8vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: 6px;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            color: #ffe9b0;
+            text-shadow:
+                0 0 14px rgba(255, 220, 130, 1),
+                0 0 40px rgba(255, 180, 60, 0.95),
+                0 0 90px rgba(255, 130, 30, 0.7),
+                0 0 150px rgba(255, 100, 20, 0.5);
+            animation: clockPulse 4s ease-in-out infinite alternate;
+        }
+        @keyframes clockPulse {
+            0% { filter: brightness(1); transform: scale(1); }
+            100% { filter: brightness(1.18); transform: scale(1.008); }
+        }
+
+        .next-prayer-label {
+            font-size: clamp(0.7rem, 1.6vw, 1rem);
+            text-transform: uppercase; letter-spacing: 6px;
+            color: #c7b38a; margin-top: 6px; font-weight: 500;
+            text-shadow: 0 0 20px rgba(255,190,90,0.5);
+        }
+
+        .next-prayer-name {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 700; color: #ffe3a1;
+            margin: 2px 0 0; letter-spacing: 3px;
+            text-shadow:
+                0 0 22px rgba(255,210,110,0.95),
+                0 0 60px rgba(255,160,60,0.75),
+                0 0 120px rgba(255,130,40,0.55);
+            animation: nameGlow 5s ease-in-out infinite alternate;
+        }
+        @keyframes nameGlow {
+            0% { text-shadow: 0 0 18px rgba(255,210,110,0.8), 0 0 45px rgba(255,160,60,0.6); }
+            100% { text-shadow: 0 0 32px rgba(255,235,170,1), 0 0 85px rgba(255,180,80,0.9), 0 0 150px rgba(255,140,50,0.65); }
+        }
+
+        .countdown-timer {
+            font-size: clamp(1.8rem, 6.5vw, 4rem);
+            font-weight: 800; font-variant-numeric: tabular-nums;
+            letter-spacing: 6px; margin-top: 2px;
+            color: #b6f0ff;
+            text-shadow:
+                0 0 14px rgba(140, 230, 255, 1),
+                0 0 40px rgba(90, 180, 255, 0.95),
+                0 0 90px rgba(150, 100, 255, 0.75),
+                0 0 150px rgba(100, 60, 255, 0.5);
+            animation: countPulse 3.5s ease-in-out infinite alternate;
+        }
+        @keyframes countPulse {
+            0% { filter: brightness(1); transform: scale(1); }
+            100% { filter: brightness(1.2); transform: scale(1.01); }
+        }
+
+        /* ============================================================
+           TIMETABLE
+           ============================================================ */
+        .timetable {
+            display: flex; justify-content: space-around; align-items: center;
+            flex-wrap: nowrap; gap: 4px 6px; padding: 8px 4px 4px;
+            border-top: 1px solid rgba(255,215,140,0.15);
+            margin-top: 2px; position: relative; z-index: 2;
+            flex-shrink: 0;
+        }
+        .prayer-chip {
+            display: flex; flex-direction: column; align-items: center;
+            flex: 1 1 0; min-width: 0; padding: 6px 2px; border-radius: 22px;
+            background: rgba(255,255,255,0.03);
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .prayer-chip.active {
+            background: rgba(255,200,90,0.16);
+            border-color: rgba(255,210,120,0.6);
+            box-shadow: 0 0 18px rgba(255,190,80,0.4), inset 0 0 10px rgba(255,200,100,0.2);
+        }
+        .prayer-chip .name {
+            font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+            text-transform: uppercase;
+            letter-spacing: 0.8px; color: #9aaec9; font-weight: 500;
+        }
+        .prayer-chip .time {
+            font-size: clamp(0.8rem, 1.4vw, 1rem);
+            font-weight: 700; color: #eef3fc;
+            margin-top: 2px; font-variant-numeric: tabular-nums;
+        }
+        .prayer-chip.active .time {
+            color: #ffe3a1;
+            text-shadow: 0 0 14px rgba(255,200,90,0.9);
+        }
+
+        /* ============================================================
+           BOTTOM BAR
+           ============================================================ */
+        .bottom-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: nowrap; gap: 8px; padding-top: 8px; margin-top: 2px;
+            border-top: 1px solid rgba(255,215,140,0.15);
+            position: relative; z-index: 2;
+            flex-shrink: 0;
+        }
+        .hijri-date {
+            background: rgba(255,215,140,0.12);
+            padding: 6px 14px; border-radius: 30px;
+            font-weight: 600; letter-spacing: 0.5px;
+            border: 1px solid rgba(255,215,140,0.35);
+            color: #ffe3a1; font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+            display: flex; align-items: center; gap: 6px;
+            text-shadow: 0 0 14px rgba(255,200,90,0.55);
+            box-shadow: 0 0 22px rgba(255,190,80,0.15);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .bottom-actions { display: flex; gap: 6px; flex-wrap: nowrap; flex-shrink: 0; }
+
+        .btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #d6e2f5; padding: 7px 14px;
+            border-radius: 60px; font-size: clamp(0.7rem, 1vw, 0.82rem);
+            font-weight: 500;
+            display: flex; align-items: center; gap: 5px;
+            cursor: pointer; transition: all 0.25s;
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(255,215,100,0.6);
+            color: white; box-shadow: 0 0 22px rgba(255,190,80,0.35);
+        }
+        .btn.active {
+            background: rgba(255,215,100,0.25);
+            border-color: #fadf9e; color: #ffefc0;
+            box-shadow: 0 0 24px rgba(255,200,90,0.6);
+        }
+
+        /* ============================================================
+           SETTINGS MODAL
+           ============================================================ */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(14px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 2000; padding: 16px;
+        }
+        .modal.show { display: flex; }
+        .modal-card {
+            background: #141c2c;
+            border: 2px solid rgba(255,215,140,0.4);
+            border-radius: 42px; padding: 28px 26px;
+            width: 100%; max-width: 500px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 60px rgba(255,190,80,0.2);
+            color: #eef3fc; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-card h2 {
+            font-weight: 500; letter-spacing: 1px;
+            margin-bottom: 24px; color: #fadf9e;
+            font-size: 1.8rem;
+            text-shadow: 0 0 22px rgba(255,200,90,0.6);
+        }
+        .setting-group { margin-bottom: 22px; }
+        .setting-group label {
+            display: block; font-size: 0.78rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: #9aaec9; margin-bottom: 6px;
+        }
+        .setting-group input, .setting-group select {
+            width: 100%; padding: 12px 18px; border-radius: 40px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white; font-size: 1rem; outline: none;
+        }
+        .setting-group input:focus, .setting-group select:focus {
+            border-color: #fadf9e; box-shadow: 0 0 18px rgba(255,200,90,0.4);
+        }
+        .modal-actions {
+            display: flex; justify-content: flex-end;
+            gap: 12px; margin-top: 28px;
+        }
+
+        /* ============================================================
+           LANDSCAPE FIT — ensure EVERYTHING is visible
+           ============================================================ */
+        @media (orientation: landscape) and (max-height: 700px) {
+            .app {
+                height: 98vh;
+                max-height: 98vh;
+                padding: 12px 20px 10px;
+                border-radius: 32px;
+            }
+            .app::before, .app::after { border-radius: 32px; }
+            .dua-rotator { min-height: 26px; padding: 0 12px; margin-bottom: 0; }
+            .dua-text { font-size: 0.7rem; line-height: 1.3; }
+            .current-time { font-size: clamp(2rem, 7vw, 4rem); letter-spacing: 4px; }
+            .next-prayer-label { font-size: 0.65rem; letter-spacing: 4px; margin-top: 2px; }
+            .next-prayer-name { font-size: clamp(1.1rem, 3.5vw, 1.8rem); margin: 0; letter-spacing: 2px; }
+            .countdown-timer { font-size: clamp(1.4rem, 4.5vw, 2.4rem); letter-spacing: 4px; margin-top: 0; }
+            .main-panel { padding: 0; }
+            .timetable { padding: 4px 2px 2px; gap: 3px; margin-top: 0; }
+            .prayer-chip { padding: 3px 1px; border-radius: 14px; }
+            .prayer-chip .name { font-size: 0.55rem; letter-spacing: 0.5px; }
+            .prayer-chip .time { font-size: 0.75rem; margin-top: 1px; }
+            .bottom-bar { padding-top: 4px; gap: 4px; }
+            .hijri-date { padding: 4px 10px; font-size: 0.65rem; gap: 4px; }
+            .btn { padding: 5px 10px; font-size: 0.68rem; gap: 3px; }
+        }
+
+        @media (orientation: landscape) and (min-height: 701px) and (max-height: 820px) {
+            .app { height: 96vh; max-height: 96vh; padding: 16px 22px 12px; }
+            .current-time { font-size: clamp(2.5rem, 8vw, 5rem); }
+            .countdown-timer { font-size: clamp(1.8rem, 6vw, 3.5rem); }
+            .next-prayer-name { font-size: clamp(1.6rem, 5vw, 2.8rem); }
+            .timetable { padding: 8px 4px 4px; }
+            .bottom-bar { padding-top: 6px; }
+        }
+
+        /* Portrait — compact but complete */
+        @media (orientation: portrait) {
+            .app {
+                max-height: 98vh;
+                border-radius: 32px;
+                padding: 14px 14px 10px;
+            }
+            .app::before, .app::after { border-radius: 32px; }
+            .current-time { font-size: clamp(2.4rem, 15vw, 5rem); }
+            .countdown-timer { font-size: clamp(1.8rem, 10vw, 3.5rem); }
+            .next-prayer-name { font-size: clamp(1.8rem, 8vw, 3rem); }
+            .timetable { gap: 3px; padding: 8px 2px 4px; }
+            .prayer-chip { min-width: 0; padding: 6px 2px; }
+            .bottom-bar { justify-content: center; gap: 6px; }
+            .dua-text { font-size: 0.7rem; }
+        }
+
+        @media (max-width: 560px) {
+            .btn { padding: 6px 12px; font-size: 0.7rem; }
+            .hijri-date { font-size: 0.7rem; padding: 5px 12px; }
+            .dua-text { font-size: 0.65rem; }
+        }
+
+        audio { display: none; }
+    </style>
+</head>
+<body>
+    <div class="bg-layer">
+        <div class="bg-aura"></div>
+        <div class="bg-star"></div>
+        <div class="bg-geo2"></div>
+        <div class="bg-geo3"></div>
+        <div class="bg-dots"></div>
+    </div>
+
+    <div class="app" id="app">
+        <div class="dua-rotator">
+            <div class="dua-text" id="duaText">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+        </div>
+
+        <div class="main-panel">
+            <div class="current-time" id="currentTime">12:34:56</div>
+            <div class="next-prayer-label">NEXT PRAYER</div>
+            <div class="next-prayer-name" id="nextPrayerName">Asr</div>
+            <div class="countdown-timer" id="countdown">00:00:00</div>
+        </div>
+
+        <div class="timetable" id="timetable"></div>
+
+        <div class="bottom-bar">
+            <div class="hijri-date" id="hijriDate">📅 12 Ramadan 1446</div>
+            <div class="bottom-actions">
+                <div class="btn" id="settingsBtn">⚙️ Settings</div>
+                <div class="btn" id="fullscreenBtn">⛶ Full</div>
+                <div class="btn" id="wakeLockBtn">💡 Awake</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="prayer-light" id="prayerLight"></div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-card">
+            <h2>⚙️ Settings</h2>
+            <div class="setting-group">
+                <label>Location method</label>
+                <select id="locationMethod">
+                    <option value="auto">Auto (browser GPS)</option>
+                    <option value="manual">Manual</option>
+                </select>
+            </div>
+            <div class="setting-group" id="manualLocationFields" style="display: none;">
+                <label>Country</label>
+                <input type="text" id="countryInput" placeholder="e.g. Jordan" value="Jordan">
+                <label style="margin-top: 12px;">City</label>
+                <input type="text" id="cityInput" placeholder="e.g. Amman" value="Amman">
+                <div style="font-size:0.75rem; color:#7a8ba8; margin-top:6px;">Type any city — we'll use its coordinates if known, otherwise default to Amman/Jordan.</div>
+            </div>
+            <div class="setting-group">
+                <label>Calculation method</label>
+                <select id="calcMethod">
+                    <option value="MWL">Muslim World League (MWL)</option>
+                    <option value="ISNA">ISNA (North America)</option>
+                    <option value="EGYPT">Egyptian General Authority</option>
+                    <option value="UmmAlQura">Umm al-Qura, Makkah</option>
+                    <option value="Karachi">University of Islamic Sciences, Karachi</option>
+                    <option value="Jordan" selected>🇯🇴 Jordan — Iftaa' (Official)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <div class="btn" id="closeModalBtn">Close</div>
+                <div class="btn" id="saveSettingsBtn" style="background:#fadf9e; color:#141c2c;">Save</div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="adhanAudio" preload="none">
+        <source src="https://www.islamcan.com/audio/adhan/azan1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="beepAudio" preload="auto">
+        <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+
+    <script>
+        (function() {
+            const state = {
+                latitude: 31.9539,
+                longitude: 35.9106,
+                timezoneOffset: 3,
+                locationName: "Amman, JO",
+                calcMethod: "Jordan",
+                useAutoLocation: true,
+                prayerTimes: {},
+                nextPrayer: null,
+                nextPrayerTime: null,
+                wakeLock: null,
+                wakeLockActive: false,
+                glowActive: false,
+                lastPrayerTriggered: null,
+                lastCalcDate: null,
+                duaIndex: 0,
+            };
+
+            const appEl = document.getElementById('app');
+            const currentTimeEl = document.getElementById('currentTime');
+            const nextPrayerNameEl = document.getElementById('nextPrayerName');
+            const countdownEl = document.getElementById('countdown');
+            const hijriDateEl = document.getElementById('hijriDate');
+            const timetableEl = document.getElementById('timetable');
+            const prayerLight = document.getElementById('prayerLight');
+            const settingsModal = document.getElementById('settingsModal');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            const locationMethodSelect = document.getElementById('locationMethod');
+            const manualLocationFields = document.getElementById('manualLocationFields');
+            const countryInput = document.getElementById('countryInput');
+            const cityInput = document.getElementById('cityInput');
+            const calcMethodSelect = document.getElementById('calcMethod');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const wakeLockBtn = document.getElementById('wakeLockBtn');
+            const adhanAudio = document.getElementById('adhanAudio');
+            const beepAudio = document.getElementById('beepAudio');
+            const duaTextEl = document.getElementById('duaText');
+
+            const duas = [
+                "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ",
+                "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ",
+                "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+                "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ",
+                "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ",
+                "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
+                "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ",
+                "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+                "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ",
+                "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ",
+                "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً",
+                "اللَّهُمَّ اجْعَلْ قَلْبِي مُطْمَئِنًّا بِذِكْرِكَ"
+            ];
+
+            function rotateDua() {
+                state.duaIndex = (state.duaIndex + 1) % duas.length;
+                duaTextEl.style.opacity = '0';
+                setTimeout(() => {
+                    duaTextEl.textContent = duas[state.duaIndex];
+                    duaTextEl.style.opacity = '1';
+                }, 400);
+            }
+
+            function calculatePrayerTimes(date, lat, lng, method, tzOffset) {
+                const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+                const declination = 23.44 * Math.sin((360 / 365) * (dayOfYear - 81) * Math.PI / 180);
+                const latRad = lat * Math.PI / 180;
+                const decRad = declination * Math.PI / 180;
+                const B = 2 * Math.PI * (dayOfYear - 81) / 364;
+                const eqTime = 9.87 * Math.sin(2*B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+                const solarNoonUTC = 720 - 4 * lng - eqTime;
+                const solarNoonLocal = solarNoonUTC + tzOffset * 60;
+
+                function hourAngle(angle) {
+                    const cosH = (Math.sin(angle * Math.PI/180) - Math.sin(latRad) * Math.sin(decRad)) /
+                                 (Math.cos(latRad) * Math.cos(decRad));
+                    if (cosH > 1) return NaN;
+                    if (cosH < -1) return 0;
+                    return Math.acos(cosH) * 180 / Math.PI;
+                }
+
+                const angles = {
+                    MWL: { fajr: 18, isha: 17 },
+                    ISNA: { fajr: 15, isha: 15 },
+                    EGYPT: { fajr: 19.5, isha: 17.5 },
+                    UmmAlQura: { fajr: 18.5, isha: 90 },
+                    Karachi: { fajr: 18, isha: 18 },
+                    Jordan: { fajr: 18, isha: 18 }
+                };
+                const a = angles[method] || angles.Jordan;
+
+                const fajrHA = hourAngle(-a.fajr);
+                const fajrMin = solarNoonLocal - (fajrHA * 4);
+                const sunriseHA = hourAngle(-0.833);
+                const sunriseMin = solarNoonLocal - (sunriseHA * 4);
+                const dhuhrMin = solarNoonLocal + 5;
+                const asrAngle = Math.atan(1 + Math.tan(Math.abs(latRad - decRad))) * 180 / Math.PI;
+                const asrHA = hourAngle(90 - asrAngle);
+                const asrMin = solarNoonLocal + (asrHA * 4);
+                const maghribMin = solarNoonLocal + (sunriseHA * 4);
+
+                let ishaMin;
+                if (method === 'UmmAlQura') {
+                    ishaMin = maghribMin + 90;
+                } else if (method === 'Jordan') {
+                    const ishaHA = hourAngle(-18);
+                    ishaMin = solarNoonLocal + (ishaHA * 4);
+                } else {
+                    const ishaHA = hourAngle(-a.isha);
+                    ishaMin = solarNoonLocal + (ishaHA * 4);
+                }
+
+                const baseDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const toDate = (min) => {
+                    if (isNaN(min)) return null;
+                    const d = new Date(baseDate);
+                    d.setMinutes(min);
+                    return d;
+                };
+
+                return {
+                    fajr: toDate(fajrMin), sunrise: toDate(sunriseMin),
+                    dhuhr: toDate(dhuhrMin), asr: toDate(asrMin),
+                    maghrib: toDate(maghribMin), isha: toDate(ishaMin),
+                };
+            }
+
+            function getHijriDate(date) {
+                const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+                const julian = Math.floor((1461 * (y + 4800 + Math.floor((m - 14)/12)))/4)
+                             + Math.floor((367 * (m - 2 - 12 * Math.floor((m - 14)/12)))/12)
+                             - Math.floor((3 * Math.floor((y + 4900 + Math.floor((m - 14)/12))/100))/4)
+                             + d - 32075;
+                const l = julian - 1948440 + 10632;
+                const n = Math.floor((l - 1) / 10631);
+                const l2 = l - 10631 * n + 354;
+                const j = Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719)
+                        + Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
+                const l3 = l2 - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50)
+                         - Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+                const month = Math.floor((24 * l3) / 709);
+                const day = l3 - Math.floor((709 * month) / 24);
+                const year = 30 * n + j - 30;
+                const months = ['Muharram', 'Safar', 'Rabi\' al-awwal', 'Rabi\' al-thani',
+                                'Jumada al-awwal', 'Jumada al-thani', 'Rajab', 'Sha\'ban',
+                                'Ramadan', 'Shawwal', 'Dhu al-Qi\'dah', 'Dhu al-Hijjah'];
+                return `${day} ${months[month-1]} ${year}`;
+            }
+
+            function formatTime(date) {
+                if (!date) return '--:--';
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            }
+            function formatCountdown(ms) {
+                if (ms < 0) ms = 0;
+                const s = Math.floor(ms / 1000);
+                const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+                return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+            }
+
+            function renderTimetable() {
+                const prayers = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+                const names = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+                let html = '';
+                prayers.forEach(p => {
+                    const t = state.prayerTimes[p] ? formatTime(state.prayerTimes[p]) : '--:--';
+                    const active = state.nextPrayer === p;
+                    html += `<div class="prayer-chip ${active ? 'active' : ''}">
+                        <span class="name">${names[p]}</span>
+                        <span class="time">${t}</span>
+                    </div>`;
+                });
+                timetableEl.innerHTML = html;
+            }
+
+            function updateClock() {
+                const now = new Date();
+
+                currentTimeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                hijriDateEl.textContent = `📅 ${getHijriDate(now)}`;
+
+                const todayStr = now.toDateString();
+                if (state.lastCalcDate !== todayStr) {
+                    state.prayerTimes = calculatePrayerTimes(now, state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                    state.lastCalcDate = todayStr;
+                }
+
+                const order = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+                let next = null, nextTime = null;
+                for (let p of order) {
+                    const pt = state.prayerTimes[p];
+                    if (pt && pt > now) { next = p; nextTime = pt; break; }
+                }
+                if (!next) {
+                    const tmr = new Date(now); tmr.setDate(tmr.getDate() + 1);
+                    const tTimes = calculatePrayerTimes(tmr, state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                    next = 'fajr'; nextTime = tTimes.fajr;
+                }
+
+                state.nextPrayer = next;
+                state.nextPrayerTime = nextTime;
+
+                if (next && nextTime) {
+                    nextPrayerNameEl.textContent = next.charAt(0).toUpperCase() + next.slice(1);
+                    const diff = nextTime - now;
+                    countdownEl.textContent = formatCountdown(diff);
+
+                    if (diff <= 300000 && diff > 0) {
+                        if (!state.glowActive) { appEl.classList.add('glow-active'); state.glowActive = true; }
+                    } else {
+                        if (state.glowActive) { appEl.classList.remove('glow-active'); state.glowActive = false; }
+                    }
+
+                    if (Math.abs(diff) < 1000 && state.lastPrayerTriggered !== next + todayStr) {
+                        state.lastPrayerTriggered = next + todayStr;
+                        triggerPrayerAnimation();
+                    }
+                } else {
+                    nextPrayerNameEl.textContent = '--';
+                    countdownEl.textContent = '--:--:--';
+                }
+
+                renderTimetable();
+            }
+
+            function triggerPrayerAnimation() {
+                prayerLight.classList.add('active');
+                setTimeout(() => prayerLight.classList.remove('active'), 1500);
+
+                beepAudio.volume = 0.45;
+                beepAudio.play().catch(()=>{});
+
+                setTimeout(() => {
+                    adhanAudio.volume = 0.85;
+                    adhanAudio.play().catch(()=>{});
+                }, 650);
+
+                setTimeout(() => {
+                    if (!adhanAudio.paused) { adhanAudio.pause(); adhanAudio.currentTime = 0; }
+                }, 30000);
+            }
+
+            async function requestWakeLock() {
+                if (!('wakeLock' in navigator)) {
+                    alert('Wake Lock API not supported. Try Chrome/Edge/Android.');
+                    return;
+                }
+                try {
+                    if (state.wakeLock) {
+                        await state.wakeLock.release();
+                        state.wakeLock = null;
+                        state.wakeLockActive = false;
+                        wakeLockBtn.classList.remove('active');
+                        return;
+                    }
+                    state.wakeLock = await navigator.wakeLock.request('screen');
+                    state.wakeLockActive = true;
+                    wakeLockBtn.classList.add('active');
+                    state.wakeLock.addEventListener('release', () => {
+                        state.wakeLockActive = false;
+                        wakeLockBtn.classList.remove('active');
+                        state.wakeLock = null;
+                    });
+                } catch (e) {
+                    console.error(e);
+                    alert('Wake Lock failed: ' + e.message);
+                }
+            }
+
+            function toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(e => alert('Fullscreen blocked: ' + e.message));
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            function getAutoLocation() {
+                if (!navigator.geolocation) {
+                    alert('Geolocation not supported. Using Amman.');
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        state.latitude = pos.coords.latitude;
+                        state.longitude = pos.coords.longitude;
+                        state.locationName = `${pos.coords.latitude.toFixed(2)}°, ${pos.coords.longitude.toFixed(2)}°`;
+                        state.timezoneOffset = Math.round(state.longitude / 15);
+                        state.prayerTimes = calculatePrayerTimes(new Date(), state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                        state.lastCalcDate = new Date().toDateString();
+                        updateClock();
+                    },
+                    () => {
+                        state.locationName = 'Amman, JO (default)';
+                        state.latitude = 31.9539;
+                        state.longitude = 35.9106;
+                        state.timezoneOffset = 3;
+                        state.prayerTimes = calculatePrayerTimes(new Date(), state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                        state.lastCalcDate = new Date().toDateString();
+                        updateClock();
+                    }
+                );
+            }
+
+            function openSettings() {
+                settingsModal.classList.add('show');
+                locationMethodSelect.value = state.useAutoLocation ? 'auto' : 'manual';
+                manualLocationFields.style.display = state.useAutoLocation ? 'none' : 'block';
+                calcMethodSelect.value = state.calcMethod;
+            }
+            function closeSettings() { settingsModal.classList.remove('show'); }
+
+            function saveSettings() {
+                const method = locationMethodSelect.value;
+                state.calcMethod = calcMethodSelect.value;
+
+                if (method === 'auto') {
+                    state.useAutoLocation = true;
+                    getAutoLocation();
+                } else {
+                    state.useAutoLocation = false;
+                    const country = countryInput.value.trim() || 'Jordan';
+                    const city = cityInput.value.trim() || 'Amman';
+                    const cityMap = {
+                        'amman': { lat: 31.9539, lng: 35.9106, tz: 3, name: 'Amman, JO' },
+                        'irbid': { lat: 32.5556, lng: 35.8500, tz: 3, name: 'Irbid, JO' },
+                        'zarqa': { lat: 32.0728, lng: 36.0876, tz: 3, name: 'Zarqa, JO' },
+                        'aqaba': { lat: 29.5321, lng: 35.0063, tz: 3, name: 'Aqaba, JO' },
+                        'salt': { lat: 32.0392, lng: 35.7272, tz: 3, name: 'As-Salt, JO' },
+                        'madaba': { lat: 31.7158, lng: 35.7938, tz: 3, name: 'Madaba, JO' },
+                        'jerash': { lat: 32.2806, lng: 35.8994, tz: 3, name: 'Jerash, JO' },
+                        'karak': { lat: 31.1853, lng: 35.7047, tz: 3, name: 'Al-Karak, JO' },
+                        'maan': { lat: 30.1927, lng: 35.7364, tz: 3, name: 'Ma\'an, JO' },
+                        'tafilah': { lat: 30.8375, lng: 35.6042, tz: 3, name: 'At-Tafilah, JO' },
+                        'mafraq': { lat: 32.3425, lng: 36.2081, tz: 3, name: 'Al-Mafraq, JO' },
+                        'ajloun': { lat: 32.3339, lng: 35.7514, tz: 3, name: 'Ajloun, JO' },
+                        'mecca': { lat: 21.4225, lng: 39.8262, tz: 3, name: 'Mecca, SA' },
+                        'medina': { lat: 24.4686, lng: 39.6142, tz: 3, name: 'Medina, SA' },
+                        'cairo': { lat: 30.0444, lng: 31.2357, tz: 2, name: 'Cairo, EG' },
+                        'istanbul': { lat: 41.0082, lng: 28.9784, tz: 3, name: 'Istanbul, TR' },
+                        'london': { lat: 51.5074, lng: -0.1278, tz: 1, name: 'London, UK' },
+                        'new york': { lat: 40.7128, lng: -74.0060, tz: -4, name: 'New York, US' },
+                        'jakarta': { lat: -6.2088, lng: 106.8456, tz: 7, name: 'Jakarta, ID' },
+                        'kuala lumpur': { lat: 3.1390, lng: 101.6869, tz: 8, name: 'Kuala Lumpur, MY' },
+                        'dubai': { lat: 25.2048, lng: 55.2708, tz: 4, name: 'Dubai, AE' },
+                        'riyadh': { lat: 24.7136, lng: 46.6753, tz: 3, name: 'Riyadh, SA' },
+                        'doha': { lat: 25.2854, lng: 51.5310, tz: 3, name: 'Doha, QA' },
+                        'beirut': { lat: 33.8938, lng: 35.5018, tz: 2, name: 'Beirut, LB' },
+                        'damascus': { lat: 33.5138, lng: 36.2765, tz: 2, name: 'Damascus, SY' },
+                        'baghdad': { lat: 33.3152, lng: 44.3661, tz: 3, name: 'Baghdad, IQ' },
+                        'paris': { lat: 48.8566, lng: 2.3522, tz: 2, name: 'Paris, FR' },
+                        'berlin': { lat: 52.5200, lng: 13.4050, tz: 2, name: 'Berlin, DE' },
+                        'toronto': { lat: 43.6532, lng: -79.3832, tz: -4, name: 'Toronto, CA' },
+                        'sydney': { lat: -33.8688, lng: 151.2093, tz: 10, name: 'Sydney, AU' },
+                    };
+                    const key = city.toLowerCase();
+                    if (cityMap[key]) {
+                        const c = cityMap[key];
+                        state.latitude = c.lat;
+                        state.longitude = c.lng;
+                        state.timezoneOffset = c.tz;
+                        state.locationName = c.name;
+                    } else {
+                        if (country.toLowerCase().includes('jordan')) {
+                            state.latitude = 31.9539;
+                            state.longitude = 35.9106;
+                            state.timezoneOffset = 3;
+                            state.locationName = `${city}, Jordan (approx)`;
+                        } else {
+                            state.latitude = 21.4225;
+                            state.longitude = 39.8262;
+                            state.timezoneOffset = 3;
+                            state.locationName = `${city}, ${country} (approx)`;
+                        }
+                    }
+                }
+                state.prayerTimes = calculatePrayerTimes(new Date(), state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                state.lastCalcDate = new Date().toDateString();
+                updateClock();
+                closeSettings();
+            }
+
+            function init() {
+                state.prayerTimes = calculatePrayerTimes(new Date(), state.latitude, state.longitude, state.calcMethod, state.timezoneOffset);
+                state.lastCalcDate = new Date().toDateString();
+                updateClock();
+                setInterval(updateClock, 1000);
+                setInterval(rotateDua, 12000);
+
+                if (state.useAutoLocation) getAutoLocation();
+
+                settingsBtn.addEventListener('click', openSettings);
+                closeModalBtn.addEventListener('click', closeSettings);
+                saveSettingsBtn.addEventListener('click', saveSettings);
+                locationMethodSelect.addEventListener('change', e => {
+                    manualLocationFields.style.display = e.target.value === 'manual' ? 'block' : 'none';
+                });
+                fullscreenBtn.addEventListener('click', toggleFullscreen);
+                wakeLockBtn.addEventListener('click', requestWakeLock);
+
+                document.addEventListener('visibilitychange', async () => {
+                    if (state.wakeLockActive && document.visibilityState === 'visible' && state.wakeLock === null) {
+                        try {
+                            state.wakeLock = await navigator.wakeLock.request('screen');
+                            state.wakeLock.addEventListener('release', () => {
+                                state.wakeLockActive = false;
+                                wakeLockBtn.classList.remove('active');
+                                state.wakeLock = null;
+                            });
+                        } catch (e) {}
+                    }
+                });
+
+                document.body.addEventListener('click', () => {
+                    if (!adhanAudio.paused) { adhanAudio.pause(); adhanAudio.currentTime = 0; }
+                });
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
