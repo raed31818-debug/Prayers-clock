@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Prayer Times</title>
+<style>
+  :root {
+    --gold: #f6d48a;
+    --gold-2: #ffe7b0;
+    --ink: #f4f7ff;
+    --muted: #c9b89a;
+    --glass: rgba(8, 10, 18, 0.62);
+    --line: rgba(246, 212, 138, 0.45);
+    --accent: #7ee7ff;
+    --warn: #ffd27a;
+    --flash: #fff4d2;
+  }
+  body[data-theme="emerald"] {
+    --gold: #b6f3c8;
+    --gold-2: #e7fff0;
+    --muted: #b7d8c4;
+    --line: rgba(150, 230, 180, 0.45);
+    --accent: #d8ffe8;
+    --warn: #9dface;
+    --flash: #e9fff3;
+  }
+  body[data-theme="maghrib"] {
+    --gold: #ffb48a;
+    --gold-2: #ffe0cf;
+    --muted: #e7c2b4;
+    --line: rgba(255, 170, 130, 0.5);
+    --accent: #ffd0ea;
+    --warn: #ffc49a;
+    --flash: #fff0e6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    background: #05060c;
+    color: var(--ink);
+    font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+    user-select: none;
+  }
+
+  /* Moving Islamic field — slow drift protects OLED from a fixed image */
+  .sky {
+    position: fixed; inset: -8%;
+    z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 42%, #161226 0%, #07080f 58%, #04050a 100%);
+    animation: fieldDrift 90s ease-in-out infinite alternate;
+  }
+  body[data-theme="emerald"] .sky {
+    background: radial-gradient(circle at 50% 42%, #0d1c16 0%, #06110d 58%, #030806 100%);
+  }
+  body[data-theme="maghrib"] .sky {
+    background: radial-gradient(circle at 50% 42%, #241018 0%, #10080c 58%, #070406 100%);
+  }
+  @keyframes fieldDrift {
+    0% { transform: translate3d(-1.2%, -0.6%, 0) scale(1.04); }
+    100% { transform: translate3d(1.4%, 0.8%, 0) scale(1.06); }
+  }
+  .geo {
+    position: absolute; left: 50%; top: 46%;
+    width: 150vmax; height: 150vmax;
+    transform: translate(-50%, -50%);
+    background:
+      repeating-conic-gradient(from 0deg,
+        rgba(246,212,138,0.16) 0deg 2deg,
+        transparent 2deg 15deg,
+        rgba(120,190,255,0.10) 15deg 17deg,
+        transparent 17deg 45deg);
+    border-radius: 50%;
+    filter: blur(1px);
+    animation: spin 80s linear infinite;
+    opacity: 0.9;
+  }
+  .geo.b {
+    width: 108vmax; height: 108vmax;
+    background:
+      repeating-conic-gradient(from 12deg,
+        transparent 0deg 18deg,
+        rgba(255,220,160,0.20) 18deg 20deg,
+        transparent 20deg 45deg);
+    animation: spin 55s linear infinite reverse;
+    opacity: 0.75;
+  }
+  .geo.c {
+    width: 72vmax; height: 72vmax;
+    background:
+      conic-gradient(from 0deg,
+        rgba(255,210,140,0.22), transparent 8%,
+        rgba(160,210,255,0.16), transparent 20%,
+        rgba(255,180,120,0.18), transparent 34%,
+        rgba(190,255,210,0.14), transparent 48%,
+        rgba(255,210,140,0.22), transparent 62%,
+        rgba(200,170,255,0.16), transparent 76%,
+        rgba(255,210,140,0.22));
+    animation: spin 40s linear infinite;
+    filter: blur(2px);
+  }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 12% 22%, rgba(255,236,190,0.9), transparent 60%),
+      radial-gradient(1.5px 1.5px at 72% 18%, rgba(220,235,255,0.8), transparent 60%),
+      radial-gradient(2px 2px at 84% 62%, rgba(255,210,150,0.85), transparent 60%),
+      radial-gradient(1.6px 1.6px at 28% 74%, rgba(190,255,220,0.75), transparent 60%),
+      radial-gradient(2px 2px at 48% 40%, rgba(255,230,180,0.7), transparent 60%),
+      radial-gradient(1.4px 1.4px at 60% 86%, rgba(255,200,220,0.7), transparent 60%);
+    animation: starDrift 48s ease-in-out infinite alternate;
+    opacity: 0.85;
+  }
+  @keyframes starDrift {
+    from { transform: translate3d(0,0,0); }
+    to { transform: translate3d(-2.5%, 1.8%, 0); }
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(18px);
+    mix-blend-mode: screen; opacity: 0.55;
+    animation: orbMove 22s ease-in-out infinite alternate;
+  }
+  .orb.o1 { width: 42vw; height: 42vw; left: -8%; top: 8%; background: rgba(255,170,70,0.28); }
+  .orb.o2 { width: 36vw; height: 36vw; right: -6%; bottom: 6%; background: rgba(90,120,255,0.22); animation-duration: 28s; }
+  .orb.o3 { width: 28vw; height: 28vw; left: 40%; top: 62%; background: rgba(255,120,160,0.16); animation-duration: 18s; }
+  body[data-theme="emerald"] .orb.o1 { background: rgba(80,220,150,0.28); }
+  body[data-theme="emerald"] .orb.o2 { background: rgba(40,160,120,0.22); }
+  body[data-theme="maghrib"] .orb.o1 { background: rgba(255,90,60,0.30); }
+  body[data-theme="maghrib"] .orb.o2 { background: rgba(180,40,90,0.22); }
+  @keyframes orbMove {
+    from { transform: translate3d(0,0,0) scale(1); }
+    to { transform: translate3d(8%, -6%, 0) scale(1.12); }
+  }
+  .frame {
+    position: fixed; inset: 10px; z-index: 2; pointer-events: none;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    box-shadow: inset 0 0 40px rgba(246,212,138,0.08), 0 0 24px rgba(246,212,138,0.08);
+    animation: frameBreath 7s ease-in-out infinite;
+  }
+  .frame:before, .frame:after {
+    content: ""; position: absolute; width: 54px; height: 54px;
+    border: 2px solid var(--gold); opacity: 0.8;
+  }
+  .frame:before { top: 8px; left: 8px; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; }
+  .frame:after { right: 8px; bottom: 8px; border-left: 0; border-top: 0; border-radius: 0 0 10px 0; }
+  .corner-tr, .corner-bl {
+    position: absolute; width: 54px; height: 54px; border: 2px solid var(--gold); opacity: 0.8;
+  }
+  .corner-tr { top: 8px; right: 8px; border-left: 0; border-bottom: 0; border-radius: 0 10px 0 0; }
+  .corner-bl { bottom: 8px; left: 8px; border-right: 0; border-top: 0; border-radius: 0 0 0 10px; }
+  @keyframes frameBreath {
+    0%, 100% { opacity: 0.72; inset: 10px; }
+    50% { opacity: 1; inset: 7px; }
+  }
+
+  .app {
+    position: relative; z-index: 5;
+    height: 100%;
+    display: flex; flex-direction: column;
+    padding: calc(18px + env(safe-area-inset-top)) 18px calc(14px + env(safe-area-inset-bottom));
+    animation: pixelOrbit 70s ease-in-out infinite alternate;
+  }
+  @keyframes pixelOrbit {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(2px, -2px, 0); }
+  }
+  .dua {
+    text-align: center;
+    color: var(--gold-2);
+    font-size: clamp(0.72rem, 2.6vw, 0.95rem);
+    letter-spacing: 0.2px;
+    min-height: 2.4em;
+    text-shadow: 0 0 16px rgba(255,200,100,0.45);
+    transition: opacity 0.45s ease;
+    padding: 0 8px;
+  }
+  .loc-line {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .loc-line b { color: var(--gold-2); font-weight: 650; letter-spacing: 0.4px; text-transform: none; }
+
+  .stage {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; min-height: 0;
+  }
+  .clock {
+    font-size: clamp(3.1rem, 16vw, 6.4rem);
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.92;
+    color: #fff8e8;
+    text-shadow:
+      0 2px 0 rgba(0,0,0,0.85),
+      0 0 12px rgba(255,220,140,0.9),
+      0 0 36px rgba(255,170,60,0.55);
+  }
+  .kicker {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 5px;
+    color: var(--muted);
+  }
+  .next-name {
+    margin-top: 2px;
+    font-size: clamp(1.7rem, 7vw, 3rem);
+    font-weight: 750;
+    color: var(--gold-2);
+    letter-spacing: 1px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.7), 0 0 22px rgba(255,190,80,0.55);
+  }
+  .next-ar { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+  .count-wrap {
+    margin-top: 10px;
+    padding: 6px 18px 8px;
+    border-radius: 18px;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  .count {
+    font-size: clamp(2rem, 10vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    color: #f7feff;
+    text-shadow:
+      0 2px 0 #061018,
+      0 0 10px rgba(140,230,255,0.9),
+      0 0 28px rgba(80,140,255,0.55);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .chip {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 7px 2px 6px;
+    text-align: center;
+    min-width: 0;
+  }
+  .chip.on {
+    background: rgba(246,212,138,0.16);
+    border-color: var(--line);
+    box-shadow: 0 0 16px rgba(246,212,138,0.25);
+  }
+  .chip .n { display: block; font-size: 0.58rem; letter-spacing: 0.4px; color: #b7c3d6; text-transform: uppercase; }
+  .chip .ar { display: block; font-size: 0.62rem; color: var(--gold); margin-top: 1px; }
+  .chip .t { display: block; margin-top: 3px; font-size: 0.78rem; font-weight: 750; font-variant-numeric: tabular-nums; color: #fff; }
+
+  .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-top: 10px;
+  }
+  .hijri {
+    font-size: 0.72rem; color: var(--gold-2);
+    background: rgba(246,212,138,0.1);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 10px;
+    max-width: 46%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .actions { display: flex; gap: 6px; }
+  .btn {
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    color: #eef3ff;
+    border-radius: 999px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+  .btn.on { background: rgba(246,212,138,0.22); border-color: var(--gold); color: var(--gold-2); }
+  .btn.primary { background: var(--gold); color: #1a140c; border-color: transparent; font-weight: 700; }
+
+  .modal, .sheet {
+    position: fixed; inset: 0; z-index: 30;
+    background: rgba(0,0,0,0.72);
+    display: none; align-items: flex-end; justify-content: center;
+    padding: 12px;
+  }
+  .modal.show, .sheet.show { display: flex; }
+  .card {
+    width: min(520px, 100%);
+    background: #121826;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 20px 16px 16px;
+    max-height: min(88vh, 760px);
+    overflow: auto;
+  }
+  .card h2 { font-weight: 650; color: var(--gold-2); margin-bottom: 12px; font-size: 1.25rem; }
+  label { display: block; font-size: 0.68rem; letter-spacing: 1.2px; text-transform: uppercase; color: #9eb0c8; margin: 10px 0 6px; }
+  select, input {
+    width: 100%; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
+    background: #0d1320; color: white; padding: 12px 12px; font-size: 1rem;
+  }
+  .row { display: flex; gap: 8px; margin-top: 16px; }
+  .row .btn { flex: 1; text-align: center; padding: 12px; }
+  .hint { color: #8ea0b8; font-size: 0.75rem; margin-top: 8px; line-height: 1.35; }
+  .status {
+    margin-top: 8px; font-size: 0.75rem; color: var(--gold-2); min-height: 1.1em;
+  }
+
+  /* Alarm layers */
+  .alarm {
+    position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0;
+  }
+  .alarm.show { opacity: 1; }
+  .veil {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255,220,150,0.08), rgba(0,0,0,0.18) 70%);
+  }
+  .streak {
+    position: absolute; left: 50%; top: 50%;
+    width: 58vw; height: 3px; margin-left: -29vw;
+    background: linear-gradient(90deg, transparent, rgba(255,248,220,0.15), #fff6d2 48%, var(--warn) 62%, transparent);
+    filter: drop-shadow(0 0 10px var(--warn)) drop-shadow(0 0 22px rgba(255,180,60,0.7));
+    transform-origin: 100% 50%;
+    opacity: 0;
+  }
+  .alarm.warn .streak { animation: tearIn 2.5s cubic-bezier(.4,0,.2,1) forwards; }
+  .alarm.warn.reverse .streak { animation: tearOut 2.3s cubic-bezier(.4,0,.2,1) forwards; }
+  .alarm.style-emerald .streak {
+    background: linear-gradient(90deg, transparent, rgba(210,255,230,0.2), #eafff4 50%, #7dface, transparent);
+    filter: drop-shadow(0 0 12px #8dface);
+  }
+  .alarm.style-rose .streak {
+    background: linear-gradient(90deg, transparent, rgba(255,220,230,0.2), #fff 46%, #ffb0c8, transparent);
+    filter: drop-shadow(0 0 12px #ff9ebc);
+    height: 8px; border-radius: 8px;
+  }
+  @keyframes tearIn {
+    0% { opacity: 0; transform: rotate(var(--a)) translateX(62vw) scaleX(0.4); }
+    18% { opacity: 1; }
+    100% { opacity: 0.95; transform: rotate(var(--a)) translateX(4vw) scaleX(1); }
+  }
+  @keyframes tearOut {
+    0% { opacity: 0.95; transform: rotate(var(--a)) translateX(4vw) scaleX(1); }
+    100% { opacity: 0; transform: rotate(var(--a)) translateX(70vw) scaleX(0.35); }
+  }
+  .bloom {
+    position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, #fff 0%, var(--flash) 28%, rgba(255,190,80,0.45) 52%, transparent 72%);
+    opacity: 0;
+  }
+  .alarm.flash .bloom { animation: bloom 1.7s ease-out forwards; }
+  .alarm.flash.style-star .bloom {
+    background: transparent;
+    box-shadow: 0 0 40px 16px rgba(255,230,170,0.85);
+  }
+  .alarm.flash.style-star .bloom:before,
+  .alarm.flash.style-star .bloom:after {
+    content: ""; position: absolute; inset: -40vmax; border-radius: 50%;
+    background:
+      repeating-conic-gradient(from 0deg, rgba(255,244,210,0.55) 0 6deg, transparent 6deg 18deg);
+    animation: spin 8s linear infinite;
+  }
+  @keyframes bloom {
+    0% { opacity: 0; width: 10px; height: 10px; }
+    35% { opacity: 1; width: 140vmax; height: 140vmax; }
+    100% { opacity: 0; width: 180vmax; height: 180vmax; }
+  }
+  .alarm-label {
+    position: absolute; left: 0; right: 0; top: 18%;
+    text-align: center; font-size: clamp(1.4rem, 6vw, 2.4rem);
+    color: #fff8e4; letter-spacing: 2px; font-weight: 750;
+    text-shadow: 0 2px 0 #000, 0 0 18px rgba(255,200,80,0.8);
+    opacity: 0;
+  }
+  .alarm.show .alarm-label { animation: labelIn 0.6s ease forwards; }
+  @keyframes labelIn { to { opacity: 1; } }
+
+  .arm {
+    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 25;
+    background: rgba(18,16,10,0.92); color: var(--gold-2);
+    border: 1px solid var(--line); border-radius: 16px;
+    padding: 12px 14px; text-align: center; font-size: 0.85rem;
+    display: none;
+  }
+  .arm.show { display: block; }
+  @media (max-width: 380px) {
+    .chip .ar { display: none; }
+    .btn { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body data-theme="gold">
+  <div class="sky">
+    <div class="geo"></div>
+    <div class="geo b"></div>
+    <div class="geo c"></div>
+    <div class="stars"></div>
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+  </div>
+  <div class="frame"><i class="corner-tr"></i><i class="corner-bl"></i></div>
+
+  <div class="app">
+    <div class="dua" id="dua">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+    <div class="loc-line" id="locLine">Locating…</div>
+    <div class="stage">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="kicker">NEXT PRAYER</div>
+      <div class="next-name" id="nextName">—</div>
+      <div class="next-ar" id="nextAr"></div>
+      <div class="count-wrap"><div class="count" id="count">--:--:--</div></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="bar">
+      <div class="hijri" id="hijri">Hijri …</div>
+      <div class="actions">
+        <button class="btn" id="testBtn">Test</button>
+        <button class="btn" id="wakeBtn">Awake</button>
+        <button class="btn" id="setBtn">Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="alarm" id="alarm">
+    <div class="veil"></div>
+    <div class="bloom"></div>
+    <div class="alarm-label" id="alarmLabel"></div>
+  </div>
+
+  <div class="arm" id="arm">Tap to arm the adhan. iPhone only plays sound after a tap.</div>
+
+  <div class="modal" id="settings">
+    <div class="card">
+      <h2>Settings</h2>
+      <label>Location</label>
+      <select id="locMode">
+        <option value="auto">Auto — this phone’s GPS</option>
+        <option value="manual">Manual — country and city</option>
+      </select>
+      <div id="manualBox">
+        <label>Country</label>
+        <select id="country"></select>
+        <label>City</label>
+        <select id="city"></select>
+      </div>
+      <label>Calculation method</label>
+      <select id="method"></select>
+      <label>Look</label>
+      <select id="theme">
+        <option value="gold">Night gold geometry</option>
+        <option value="emerald">Emerald night</option>
+        <option value="maghrib">Maghrib rose</option>
+      </select>
+      <label>5-minute warning light</label>
+      <select id="warnStyle">
+        <option value="gold">Gold tears — inward, then back</option>
+        <option value="emerald">Emerald petals — inward, then back</option>
+        <option value="rose">Rose arcs — inward, then back</option>
+      </select>
+      <label>Prayer-time light</label>
+      <select id="flashStyle">
+        <option value="bloom">Solar bloom flash</option>
+        <option value="star">Geometric star flash</option>
+      </select>
+      <div class="status" id="setStatus"></div>
+      <div class="hint">Auto uses GPS, then AlAdhan method 23 (Jordan Awqaf) unless you pick another method. If the network is blocked, an on-device calculation is used with your real time zone — not longitude divided by 15.</div>
+      <div class="row">
+        <button class="btn" id="closeSet">Close</button>
+        <button class="btn primary" id="saveSet">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet" id="testSheet">
+    <div class="card">
+      <h2>Test alarms</h2>
+      <p class="hint">These previews do not change today’s real alarm. Short adhan is about 18 seconds. Full adhan plays the Makkah call. Tap the screen during a real alarm to stop it.</p>
+      <div class="row"><button class="btn" id="tWarn">1 · 5-min warning</button></div>
+      <div class="row"><button class="btn" id="tFull">2 · Prayer-time flash</button></div>
+      <div class="row"><button class="btn" id="tBoth">3 · Warning, then full</button></div>
+      <div class="row">
+        <button class="btn" data-theme-pick="gold">Gold</button>
+        <button class="btn" data-theme-pick="emerald">Emerald</button>
+        <button class="btn" data-theme-pick="maghrib">Maghrib</button>
+      </div>
+      <div class="row"><button class="btn primary" id="closeTest">Close</button></div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const PLACES = {
+    "Jordan": [
+      ["Irbid", 32.5556, 35.8500], ["Amman", 31.9539, 35.9106], ["Zarqa", 32.0728, 36.0876],
+      ["Aqaba", 29.5321, 35.0063], ["As-Salt", 32.0392, 35.7272], ["Madaba", 31.7160, 35.7939],
+      ["Jerash", 32.2808, 35.8993], ["Karak", 31.1853, 35.7048], ["Ma'an", 30.1962, 35.7340],
+      ["Tafilah", 30.8375, 35.6044], ["Mafraq", 32.3429, 36.2080], ["Ajloun", 32.3326, 35.7517],
+      ["Ramtha", 32.5587, 36.0064]
+    ],
+    "Palestine": [["Jerusalem", 31.7683, 35.2137], ["Gaza", 31.5017, 34.4668], ["Nablus", 32.2211, 35.2544], ["Hebron", 31.5326, 35.0998]],
+    "Saudi Arabia": [["Makkah", 21.3891, 39.8579], ["Madinah", 24.5247, 39.5692], ["Riyadh", 24.7136, 46.6753], ["Jeddah", 21.4858, 39.1925], ["Dammam", 26.4207, 50.0888]],
+    "United Arab Emirates": [["Dubai", 25.2048, 55.2708], ["Abu Dhabi", 24.4539, 54.3773], ["Sharjah", 25.3463, 55.4209]],
+    "Qatar": [["Doha", 25.2854, 51.5310]],
+    "Kuwait": [["Kuwait City", 29.3759, 47.9774]],
+    "Bahrain": [["Manama", 26.2285, 50.5860]],
+    "Oman": [["Muscat", 23.5880, 58.3829]],
+    "Egypt": [["Cairo", 30.0444, 31.2357], ["Alexandria", 31.2001, 29.9187]],
+    "Lebanon": [["Beirut", 33.8938, 35.5018]],
+    "Syria": [["Damascus", 33.5138, 36.2765], ["Aleppo", 36.2021, 37.1343]],
+    "Iraq": [["Baghdad", 33.3152, 44.3661], ["Basra", 30.5085, 47.7804]],
+    "Turkey": [["Istanbul", 41.0082, 28.9784], ["Ankara", 39.9334, 32.8597]],
+    "United Kingdom": [["London", 51.5074, -0.1278], ["Taunton", 51.0153, -3.1000], ["Bristol", 51.4545, -2.5879], ["Birmingham", 52.4862, -1.8904], ["Manchester", 53.4808, -2.2426], ["Yeovil", 50.9420, -2.6333]],
+    "France": [["Paris", 48.8566, 2.3522]],
+    "Germany": [["Berlin", 52.5200, 13.4050]],
+    "United States": [["New York", 40.7128, -74.0060]],
+    "Malaysia": [["Kuala Lumpur", 3.1390, 101.6869]],
+    "Indonesia": [["Jakarta", -6.2088, 106.8456]],
+    "Morocco": [["Rabat", 34.0209, -6.8416], ["Casablanca", 33.5731, -7.5898]]
+  };
+  const METHODS = [
+    [23, "Jordan — Ministry of Awqaf"],
+    [3, "Muslim World League"],
+    [5, "Egyptian General Authority"],
+    [4, "Umm al-Qura, Makkah"],
+    [2, "ISNA"],
+    [1, "Karachi"],
+    [13, "Turkey — Diyanet"],
+    [16, "Dubai"],
+    [8, "Gulf region"]
+  ];
+  const NAMES = {
+    fajr: ["Fajr", "الفجر"], sunrise: ["Sunrise", "الشروق"], dhuhr: ["Dhuhr", "الظهر"],
+    asr: ["Asr", "العصر"], maghrib: ["Maghrib", "المغرب"], isha: ["Isha", "العشاء"]
+  };
+  const ORDER = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
+  const DUAS = [
+    "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ",
+    "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ",
+    "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+    "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
+    "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+    "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً"
+  ];
+  const ADHAN = "https://cdn.jsdelivr.net/gh/abodehq/Athan-MP3@master/Sounds/Athan%20Makkah.mp3";
+
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    mode: "auto", country: "Jordan", city: "Irbid",
+    lat: 32.5556, lng: 35.85, method: 23,
+    theme: "gold", warnStyle: "gold", flashStyle: "bloom",
+    placeLabel: "Irbid, Jordan", source: "starting",
+    times: {}, tomorrowFajr: null, hijri: "",
+    armed: false, wakeLock: null, dua: 0,
+    warned: "", fired: "", testing: false
+  };
+
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem("prayer-app") || "{}");
+      Object.assign(state, s);
+    } catch (e) {}
+    document.body.dataset.theme = state.theme || "gold";
+  }
+  function save() {
+    localStorage.setItem("prayer-app", JSON.stringify({
+      mode: state.mode, country: state.country, city: state.city,
+      lat: state.lat, lng: state.lng, method: state.method,
+      theme: state.theme, warnStyle: state.warnStyle, flashStyle: state.flashStyle,
+      placeLabel: state.placeLabel
+    }));
+  }
+
+  function fillCountries() {
+    const c = $("country");
+    c.innerHTML = Object.keys(PLACES).map(k => `<option>${k}</option>`).join("");
+    c.value = PLACES[state.country] ? state.country : "Jordan";
+    fillCities();
+  }
+  function fillCities() {
+    const list = PLACES[$("country").value] || PLACES.Jordan;
+    $("city").innerHTML = list.map(x => `<option>${x[0]}</option>`).join("");
+    if (list.some(x => x[0] === state.city)) $("city").value = state.city;
+  }
+  function fillMethods() {
+    $("method").innerHTML = METHODS.map(m => `<option value="${m[0]}">${m[1]}</option>`).join("");
+    $("method").value = String(state.method || 23);
+  }
+
+  function findPlace(country, city) {
+    const list = PLACES[country] || [];
+    return list.find(x => x[0] === city) || list[0];
+  }
+
+  function d2r(d) { return d * Math.PI / 180; }
+  function r2d(r) { return r * 180 / Math.PI; }
+  function fix(a) { return a - 360 * Math.floor(a / 360); }
+  function julian(date) {
+    let y = date.getFullYear(), m = date.getMonth() + 1, D = date.getDate();
+    if (m <= 2) { y -= 1; m += 12; }
+    const A = Math.floor(y / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + D + B - 1524.5;
+  }
+  function sunPos(jd) {
+    const D = jd - 2451545.0;
+    const g = fix(357.529 + 0.98560028 * D);
+    const q = fix(280.459 + 0.98564736 * D);
+    const L = fix(q + 1.915 * Math.sin(d2r(g)) + 0.020 * Math.sin(d2r(2 * g)));
+    const e = 23.439 - 0.00000036 * D;
+    const RA = r2d(Math.atan2(Math.cos(d2r(e)) * Math.sin(d2r(L)), Math.cos(d2r(L)))) / 15;
+    let eqt = q / 15 - (RA < 0 ? RA + 24 : RA);
+    const decl = r2d(Math.asin(Math.sin(d2r(e)) * Math.sin(d2r(L))));
+    return { eqt, decl };
+  }
+  function hourTime(angle, rise, lat, decl, eqt, lng) {
+    const cosH = (Math.sin(d2r(angle)) - Math.sin(d2r(lat)) * Math.sin(d2r(decl))) /
+      (Math.cos(d2r(lat)) * Math.cos(d2r(decl)));
+    if (cosH > 1 || cosH < -1) return null;
+    const H = r2d(Math.acos(cosH)) / 15;
+    const noon = 12 - eqt - lng / 15;
+    return rise ? noon - H : noon + H;
+  }
+  function toDate(base, hoursUTC, tz) {
+    if (hoursUTC == null || isNaN(hoursUTC)) return null;
+    const local = hoursUTC + tz;
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+    d.setMinutes(Math.round(local * 60));
+    return d;
+  }
+  function offlineTimes(date, lat, lng) {
+    const tz = -date.getTimezoneOffset() / 60;
+    const sp = sunPos(julian(date));
+    const angles = { 23: [18, 18], 3: [18, 17], 5: [19.5, 17.5], 4: [18.5, 90], 2: [15, 15], 1: [18, 18], 13: [18, 17], 16: [18.2, 90], 8: [19.5, 90] };
+    const a = angles[state.method] || [18, 18];
+    const fajr = hourTime(-a[0], true, lat, sp.decl, sp.eqt, lng);
+    const sun = hourTime(-0.833, true, lat, sp.decl, sp.eqt, lng);
+    const noon = 12 - sp.eqt - lng / 15;
+    const asrFactor = 1;
+    const asrAng = -r2d(Math.atan(1 / (asrFactor + Math.tan(Math.abs(d2r(lat) - d2r(sp.decl))))));
+    const asr = hourTime(asrAng, false, lat, sp.decl, sp.eqt, lng);
+    const mag = hourTime(-0.833, false, lat, sp.decl, sp.eqt, lng);
+    const isha = a[1] > 30 ? null : hourTime(-a[1], false, lat, sp.decl, sp.eqt, lng);
+    const magShift = state.method === 23 ? 5 / 60 : 0;
+    const times = {
+      fajr: toDate(date, fajr, tz),
+      sunrise: toDate(date, sun, tz),
+      dhuhr: toDate(date, noon + 2 / 60, tz),
+      asr: toDate(date, asr, tz),
+      maghrib: toDate(date, mag == null ? null : mag + magShift, tz),
+      isha: a[1] > 30 ? toDate(date, mag == null ? null : mag + a[1] / 60, tz) : toDate(date, isha, tz)
+    };
+    return times;
+  }
+
+  function parseApiTime(v) {
+    if (!v) return null;
+    const s = String(v).split(" ")[0];
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  async function fetchTimes(lat, lng, date) {
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${date.getFullYear()}?latitude=${lat}&longitude=${lng}&method=${state.method}&iso8601=true&school=0`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("API " + res.status);
+    const json = await res.json();
+    const t = json.data.timings;
+    const h = json.data.date && json.data.date.hijri;
+    return {
+      times: {
+        fajr: parseApiTime(t.Fajr), sunrise: parseApiTime(t.Sunrise), dhuhr: parseApiTime(t.Dhuhr),
+        asr: parseApiTime(t.Asr), maghrib: parseApiTime(t.Maghrib), isha: parseApiTime(t.Isha)
+      },
+      hijri: h ? `${h.day} ${h.month.en} ${h.year}` : ""
+    };
+  }
+
+  async function refreshTimes() {
+    const now = new Date();
+    try {
+      const today = await fetchTimes(state.lat, state.lng, now);
+      const tmr = new Date(now); tmr.setDate(tmr.getDate() + 1);
+      const next = await fetchTimes(state.lat, state.lng, tmr);
+      state.times = today.times;
+      state.tomorrowFajr = next.times.fajr;
+      state.hijri = today.hijri;
+      state.source = "AlAdhan live";
+    } catch (e) {
+      state.times = offlineTimes(now, state.lat, state.lng);
+      const tmr = new Date(now); tmr.setDate(tmr.getDate() + 1);
+      state.tomorrowFajr = offlineTimes(tmr, state.lat, state.lng).fajr;
+      state.hijri = hijriFallback(now);
+      state.source = "Offline calc";
+    }
+    paint();
+  }
+
+  function hijriFallback(date) {
+    try {
+      const fmt = new Intl.DateTimeFormat("en-TN-u-ca-islamic", { day: "numeric", month: "long", year: "numeric" });
+      return fmt.format(date);
+    } catch (e) { return ""; }
+  }
+
+  function fmt(d) {
+    if (!d) return "--:--";
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  }
+  function fmtCount(ms) {
+    if (ms < 0) ms = 0;
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return [h, m, sec].map(n => String(n).padStart(2, "0")).join(":");
+  }
+
+  function paint() {
+    const now = new Date();
+    $("clock").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    let nextKey = null, nextAt = null;
+    for (const k of ORDER) {
+      const t = state.times[k];
+      if (t && t.getTime() > now.getTime() + 800) { nextKey = k; nextAt = t; break; }
+    }
+    if (!nextKey) { nextKey = "fajr"; nextAt = state.tomorrowFajr; }
+    const diff = nextAt ? nextAt.getTime() - now.getTime() : 0;
+    $("nextName").textContent = NAMES[nextKey][0];
+    $("nextAr").textContent = NAMES[nextKey][1];
+    $("count").textContent = nextAt ? fmtCount(diff) : "--:--:--";
+    $("hijri").textContent = state.hijri || hijriFallback(now);
+    $("locLine").innerHTML = `<b>${state.placeLabel}</b> · ${state.source}`;
+    $("grid").innerHTML = ORDER.map(k => {
+      const on = k === nextKey ? " on" : "";
+      return `<div class="chip${on}"><span class="n">${NAMES[k][0]}</span><span class="ar">${NAMES[k][1]}</span><span class="t">${fmt(state.times[k])}</span></div>`;
+    }).join("");
+
+    if (!state.testing && nextKey && nextAt) {
+      const id = nextKey + nextAt.toDateString();
+      if (diff <= 5 * 60 * 1000 && diff > 4000 && state.warned !== id) {
+        state.warned = id;
+        runAlarm("warn", nextKey);
+      }
+      if (Math.abs(diff) < 1500 && state.fired !== id) {
+        state.fired = id;
+        runAlarm("full", nextKey);
+      }
+    }
+  }
+
+  const alarm = $("alarm");
+  let audio = new Audio(ADHAN);
+  audio.preload = "auto";
+  let stopTimer = null;
+  let reverseTimer = null;
+  let ctx = null;
+
+  function armAudio() {
+    if (state.armed) return;
+    state.armed = true;
+    $("arm").classList.remove("show");
+    audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === "suspended") ctx.resume();
+    } catch (e) {}
+  }
+
+  function synth(mode) {
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const notes = mode === "full"
+        ? [392, 440, 494, 523, 494, 440, 392, 349, 392, 440, 494, 523, 587, 523]
+        : [392, 494, 440, 392, 349, 392];
+      notes.forEach((f, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine"; o.frequency.value = f;
+        o.connect(g); g.connect(ctx.destination);
+        const t0 = ctx.currentTime + i * 0.42;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.4);
+        o.start(t0); o.stop(t0 + 0.42);
+      });
+    } catch (e) {}
+  }
+
+  function stopAudio() {
+    clearTimeout(stopTimer);
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  function playAdhan(mode) {
+    stopAudio();
+    audio.src = ADHAN;
+    audio.volume = mode === "warn" ? 0.7 : 0.9;
+    const p = audio.play();
+    if (p && p.catch) p.catch(() => synth(mode === "warn" ? "short" : "full"));
+    if (mode === "warn") stopTimer = setTimeout(stopAudio, 18000);
+    else stopTimer = setTimeout(stopAudio, 120000);
+  }
+
+  function buildStreaks() {
+    alarm.querySelectorAll(".streak").forEach(n => n.remove());
+    const n = state.warnStyle === "rose" ? 7 : 10;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement("div");
+      s.className = "streak";
+      s.style.setProperty("--a", (i * (360 / n)) + "deg");
+      s.style.animationDelay = (i * 0.06) + "s";
+      alarm.appendChild(s);
+    }
+  }
+
+  function runAlarm(kind, prayer) {
+    clearTimeout(reverseTimer);
+    alarm.className = "alarm show " + (kind === "warn" ? "warn" : "flash");
+    alarm.classList.add(kind === "warn" ? "style-" + state.warnStyle : "style-" + state.flashStyle);
+    const label = kind === "warn"
+      ? "5 minutes · " + NAMES[prayer][0]
+      : NAMES[prayer][0] + " · " + NAMES[prayer][1];
+    $("alarmLabel").textContent = label;
+    if (kind === "warn") {
+      buildStreaks();
+      reverseTimer = setTimeout(() => alarm.classList.add("reverse"), 2600);
+      setTimeout(() => { if (!state.testing) alarm.className = "alarm"; }, 5200);
+    } else {
+      setTimeout(() => { if (!state.testing) alarm.className = "alarm"; }, 2200);
+    }
+    playAdhan(kind === "warn" ? "warn" : "full");
+  }
+
+  function preview(kind) {
+    state.testing = true;
+    runAlarm(kind, "dhuhr");
+    const hold = kind === "warn" ? 5600 : 2400;
+    setTimeout(() => { state.testing = false; alarm.className = "alarm"; }, hold);
+  }
+
+  async function locate() {
+    $("locLine").textContent = "Asking for location…";
+    if (!navigator.geolocation) { useManualFallback("GPS not available"); return; }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      state.lat = pos.coords.latitude;
+      state.lng = pos.coords.longitude;
+      state.placeLabel = state.lat.toFixed(2) + "°, " + state.lng.toFixed(2) + "°";
+      state.mode = "auto";
+      save();
+      await refreshTimes();
+    }, () => useManualFallback("Location blocked — using saved city"), { enableHighAccuracy: true, timeout: 8000 });
+  }
+  function useManualFallback(msg) {
+    const p = findPlace(state.country, state.city);
+    state.lat = p[1]; state.lng = p[2];
+    state.placeLabel = p[0] + ", " + state.country;
+    state.source = msg;
+    refreshTimes();
+  }
+
+  function openSettings() {
+    $("locMode").value = state.mode;
+    $("country").value = state.country;
+    fillCities();
+    $("city").value = state.city;
+    $("method").value = String(state.method);
+    $("theme").value = state.theme;
+    $("warnStyle").value = state.warnStyle;
+    $("flashStyle").value = state.flashStyle;
+    $("manualBox").style.display = state.mode === "manual" ? "block" : "none";
+    $("settings").classList.add("show");
+  }
+
+  $("locMode").addEventListener("change", () => {
+    $("manualBox").style.display = $("locMode").value === "manual" ? "block" : "none";
+  });
+  $("country").addEventListener("change", fillCities);
+  $("setBtn").addEventListener("click", openSettings);
+  $("closeSet").addEventListener("click", () => $("settings").classList.remove("show"));
+  $("saveSet").addEventListener("click", async () => {
+    state.mode = $("locMode").value;
+    state.country = $("country").value;
+    state.city = $("city").value;
+    state.method = Number($("method").value);
+    state.theme = $("theme").value;
+    state.warnStyle = $("warnStyle").value;
+    state.flashStyle = $("flashStyle").value;
+    document.body.dataset.theme = state.theme;
+    $("setStatus").textContent = "Saving…";
+    if (state.mode === "auto") {
+      save();
+      $("settings").classList.remove("show");
+      locate();
+      return;
+    }
+    const p = findPlace(state.country, state.city);
+    state.lat = p[1]; state.lng = p[2];
+    state.placeLabel = p[0] + ", " + state.country;
+    save();
+    await refreshTimes();
+    $("setStatus").textContent = state.source + " · " + state.placeLabel;
+    setTimeout(() => $("settings").classList.remove("show"), 500);
+  });
+
+  $("testBtn").addEventListener("click", () => { armAudio(); $("testSheet").classList.add("show"); });
+  $("closeTest").addEventListener("click", () => $("testSheet").classList.remove("show"));
+  $("tWarn").addEventListener("click", () => { $("testSheet").classList.remove("show"); preview("warn"); });
+  $("tFull").addEventListener("click", () => { $("testSheet").classList.remove("show"); preview("full"); });
+  $("tBoth").addEventListener("click", () => {
+    $("testSheet").classList.remove("show");
+    preview("warn");
+    setTimeout(() => preview("full"), 6200);
+  });
+  document.querySelectorAll("[data-theme-pick]").forEach(b => b.addEventListener("click", () => {
+    state.theme = b.dataset.themePick;
+    document.body.dataset.theme = state.theme;
+    save();
+  }));
+
+  $("wakeBtn").addEventListener("click", async () => {
+    if (!("wakeLock" in navigator)) { alert("Awake lock is not available in this browser."); return; }
+    try {
+      if (state.wakeLock) { await state.wakeLock.release(); state.wakeLock = null; $("wakeBtn").classList.remove("on"); return; }
+      state.wakeLock = await navigator.wakeLock.request("screen");
+      $("wakeBtn").classList.add("on");
+      state.wakeLock.addEventListener("release", () => { state.wakeLock = null; $("wakeBtn").classList.remove("on"); });
+    } catch (e) { alert("Could not keep the screen awake."); }
+  });
+
+  document.body.addEventListener("click", () => {
+    armAudio();
+    if (alarm.classList.contains("show") && !state.testing) stopAudio();
+  });
+
+  let duaTimer = setInterval(() => {
+    state.dua = (state.dua + 1) % DUAS.length;
+    const el = $("dua");
+    el.style.opacity = 0;
+    setTimeout(() => { el.textContent = DUAS[state.dua]; el.style.opacity = 1; }, 400);
+  }, 12000);
+
+  load();
+  fillCountries();
+  fillMethods();
+  $("arm").classList.add("show");
+  if (state.mode === "manual") useManualFallback("Saved city");
+  else locate();
+  setInterval(paint, 1000);
+  setInterval(refreshTimes, 30 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
